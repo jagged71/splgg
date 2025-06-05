@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conclave Character Guessing Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .game-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .header {
+            margin-bottom: 30px;
+        }
+
+        .title {
+            color: #4a5568;
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .score {
+            font-size: 1.5em;
+            color: #667eea;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .character-display {
+            margin-bottom: 30px;
+        }
+
+        .character-image {
+            width: 200px;
+            height: 200px;
+            border-radius: 15px;
+            border: 4px solid #667eea;
+            margin: 0 auto 20px;
+            display: block;
+            object-fit: cover;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .placeholder-image {
+            width: 200px;
+            height: 200px;
+            border-radius: 15px;
+            border: 4px solid #667eea;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(45deg, #f0f0f0, #e0e0e0);
+            font-size: 1.2em;
+            color: #666;
+            font-weight: bold;
+        }
+
+        .question {
+            font-size: 1.3em;
+            color: #4a5568;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+
+        .choices {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .choice-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 12px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .choice-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .choice-btn:active {
+            transform: translateY(0);
+        }
+
+        .choice-btn.correct {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            animation: pulse 0.5s ease-in-out;
+        }
+
+        .choice-btn.incorrect {
+            background: linear-gradient(135deg, #f56565, #e53e3e);
+            animation: shake 0.5s ease-in-out;
+        }
+
+        .choice-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .next-btn {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(72, 187, 120, 0.3);
+        }
+
+        .next-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(72, 187, 120, 0.4);
+        }
+
+        .feedback {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin: 20px 0;
+            min-height: 30px;
+        }
+
+        .feedback.correct {
+            color: #48bb78;
+        }
+
+        .feedback.incorrect {
+            color: #f56565;
+        }
+
+        .start-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 12px;
+            font-size: 1.2em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .start-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .game-over {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+
+        .game-over h2 {
+            font-size: 2em;
+            margin-bottom: 15px;
+        }
+
+        .final-score {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .game-container {
+                padding: 20px;
+            }
+            
+            .title {
+                font-size: 2em;
+            }
+            
+            .character-image, .placeholder-image {
+                width: 150px;
+                height: 150px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="header">
+            <h1 class="title">Conclave Characters</h1>
+            <div class="score">Score: <span id="scoreValue">0</span></div>
+        </div>
+
+        <div id="startScreen">
+            <p style="font-size: 1.2em; margin-bottom: 20px; color: #4a5568;">
+                Test your knowledge of Conclave characters!<br>
+                Can you identify each character by their image?
+            </p>
+            <button class="start-btn" onclick="startGame()">Start Game</button>
+        </div>
+
+        <div id="gameScreen" style="display: none;">
+            <div class="character-display">
+                <div class="placeholder-image" id="characterImage">
+                    Character Image
+                </div>
+            </div>
+
+            <div class="question">
+                Who is this character?
+            </div>
+
+            <div class="choices" id="choices">
+                <!-- Choices will be populated by JavaScript -->
+            </div>
+
+            <div class="feedback" id="feedback"></div>
+
+            <button class="next-btn" id="nextBtn" onclick="nextQuestion()" style="display: none;">
+                Next Character
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const conclaveCharacters = [
+            { name: "Janni Oracle", image: "Janni Oracle.png" },
+            { name: "Jicarilla the Rime", image: "Jicarilla the Rime.png" },
+            { name: "Kavor Skarn", image: "Kavor Skarn.png" },
+            { name: "Kaylia Silverleaf", image: "Kaylia Silverleaf.png" },
+            { name: "Leolin Sifu", image: "Leolin Sifu.png" },
+            { name: "Lucky Longshot", image: "Lucky Longshot.png" },
+            { name: "Mad Kaboomist", image: "Mad Kaboomist.png" },
+            { name: "Mahkah Hemlig", image: "Mahkah Hemlig.png" },
+            { name: "Molten Elemental", image: "Molten Elemental.png" },
+            { name: "Moribund Arrowbait", image: "Moribund Arrowbait.png" },
+            { name: "Mystic Mudbinder", image: "Mystic Mudbinder.png" },
+            { name: "Oridum Graybrow", image: "Oridum Graybrow.png" },
+            { name: "Owlkin Geodesist", image: "Owlkin Geodesist.png" },
+            { name: "Palifala Weslinath", image: "Palifala Weslinath.png" },
+            { name: "Phlegmunculus", image: "Phlegmunculus.png" },
+            { name: "Portly Cannoneer", image: "Portly Cannoneer.png" },
+            { name: "Quillstorm Mage", image: "Quillstorm Mage.png" },
+            { name: "Razi Clanktrap", image: "Razi Clanktrap.png" },
+            { name: "Runic Skychonk", image: "Runic Skychonk.png" },
+            { name: "Sacrosanct Shanker", image: "Sacrosanct Shanker.png" },
+            { name: "Shadowfey Sheik", image: "Shadowfey Sheik.png" },
+            { name: "Sheng Xiao", image: "Sheng Xiao.png" },
+            { name: "Silverleaf Mage", image: "Silverleaf Mage.png" },
+            { name: "Silverleaf Ranger", image: "Silverleaf Ranger.png" },
+            { name: "Silverleaf Warlock", image: "Silverleaf Warlock.png" },
+            { name: "Songale", image: "Songale.png" },
+            { name: "Stampeding Calf", image: "Stampeding Calf.png" },
+            { name: "Steppe Stalker", image: "Steppe Stalker.png" },
+            { name: "Swiftbeard Stout", image: "Swiftbeard Stout.png" },
+            { name: "Sylvaran Sentinel", image: "Sylvaran Sentinel.png" },
+            { name: "Taye Loreswift", image: "Taye Loreswift.png" },
+            { name: "Thragha", image: "Thragha.png" },
+            { name: "Thraghun", image: "Thraghun.png" },
+            { name: "Thunderous Herald", image: "Thunderous Herald.png" },
+            { name: "Tidal Tsunamist", image: "Tidal Tsunamist.png" },
+            { name: "Umbral Elemental", image: "Umbral Elemental.png" },
+            { name: "Vicious Giraffe", image: "Vicious Giraffe.png" },
+            { name: "Virid Venomancer", image: "Virid Venomancer.png" },
+            { name: "Warwall Juggernaut", image: "Warwall Juggernaut.png" },
+            { name: "Water Diviner", image: "Water Diviner.png" },
+            { name: "Yaba's Pickle", image: "Yaba_s Pickle.png" },
+            { name: "Zargrul", image: "Zargrul.png" },
+            { name: "Abyssal Elemental", image: "Abyssal Elemental.png" },
+            { name: "Aerial Shieldmaiden", image: "Aerial Shieldmaiden.png" },
+            { name: "Anyu Huntswoman", image: "Anyu Huntswoman.png" },
+            { name: "Aranduriel", image: "Aranduriel.png" },
+            { name: "Arcane Skinwalker", image: "Arcane Skinwalker.png" },
+            { name: "Archer Koi", image: "Archer Koi.png" },
+            { name: "Archmage Yabanius", image: "Archmage Yabanius.png" },
+            { name: "Ashen Cindergrim", image: "Ashen Cindergrim.png" },
+            { name: "Auororal Elemental", image: "Auororal Elemental.png" },
+            { name: "Bella Ratajowlski", image: "Bella Ratajowlski.png" },
+            { name: "Bellowmancer", image: "Bellowmancer.png" },
+            { name: "Blazebeard Merc", image: "Blazebeard Merc.png" },
+            { name: "Bludgeon Hucker", image: "Bludgeon Hucker.png" },
+            { name: "Boring Hobgoblin", image: "Boring Hobgoblin.png" },
+            { name: "Bren Palesworn", image: "Bren Palesworn.png" },
+            { name: "Bristleborn Brigand", image: "Bristleborn Brigand.png" },
+            { name: "Buttercup Mauler", image: "Buttercup Mauler.png" },
+            { name: "Calabash Sage", image: "Calabash Sage.png" },
+            { name: "Canary Keeper", image: "Canary Keeper.png" },
+            { name: "Caravan Guard", image: "Caravan Guard.png" },
+            { name: "Cavewise Wayfinder", image: "Cavewise Wayfinder.png" },
+            { name: "Conclave Artificer", image: "Conclave Artificer.png" },
+            { name: "Conclave Tracker", image: "Conclave Tracker.png" },
+            { name: "Craniax the Quick", image: "Craniax the Quick.png" },
+            { name: "Decrepit Windseer", image: "Decrepit Windseer.png" },
+            { name: "Deep Delver", image: "Deep Delver.png" },
+            { name: "Desolation", image: "Desolation.png" },
+            { name: "Fenmoor Gorgon", image: "Fenmoor Gorgon.png" },
+            { name: "Fenmoor Platypus", image: "Fenmoor Platypus.png" },
+            { name: "Fenmoor Wood Troll", image: "Fenmoor Wood Troll.png" },
+            { name: "Ferrous Brewer", image: "Ferrous Brewer.png" },
+            { name: "Filthy Scavenger", image: "Filthy Scavenger.png" },
+            { name: "Fithe Bladestone", image: "Fithe Bladestone.png" },
+            { name: "Flame for Hire", image: "Flame for Hire.png" },
+            { name: "Folen Flameye", image: "Folen Flameye.png" },
+            { name: "Forked-Tongue Sage", image: "Forked-Tongue Sage.png" },
+            { name: "Gonach Excavator", image: "Gonach Excavator.png" },
+            { name: "Gorgug the Endless", image: "Gorgug the Endless.png" },
+            { name: "Gramel the Hunger", image: "Gramel the Hunger.png" },
+            { name: "Grimward Ruinshot", image: "Grimward Ruinshot.png" },
+            { name: "Halfshell Seer", image: "Halfshell Seer.png" },
+            { name: "Happy Quokka", image: "Happy Quokka.png" },
+            { name: "Hodlor", image: "Hodlor.png" },
+            { name: "Inept Healer", image: "Inept Healer.png" }
+        ];
+
+        let currentCharacter = null;
+        let score = 0;
+        let usedCharacters = [];
+        let gameActive = false;
+
+        function startGame() {
+            document.getElementById('startScreen').style.display = 'none';
+            document.getElementById('gameScreen').style.display = 'block';
+            score = 0;
+            usedCharacters = [];
+            gameActive = true;
+            updateScore();
+            loadNextCharacter();
+        }
+
+        function loadNextCharacter() {
+            // Get available characters (not yet used)
+            const availableCharacters = conclaveCharacters.filter(char => 
+                !usedCharacters.includes(char.name)
+            );
+
+            // If we've used all characters, show game over
+            if (availableCharacters.length === 0) {
+                showGameOver();
+                return;
+            }
+
+            // Select random character
+            const randomIndex = Math.floor(Math.random() * availableCharacters.length);
+            currentCharacter = availableCharacters[randomIndex];
+
+            // Display character image (placeholder for now)
+            const imageElement = document.getElementById('characterImage');
+            imageElement.textContent = currentCharacter.name;
+            imageElement.style.fontSize = '0.9em';
+            imagelement.style.lineHeight = '1.2';
+
+            // Generate choices
+            generateChoices();
+
+            // Reset UI
+            document.getElementById('feedback').textContent = '';
+            document.getElementById('feedback').className = 'feedback';
+            document.getElementById('nextBtn').style.display = 'none';
+        }
+
+        function generateChoices() {
+            const choices = [currentCharacter.name];
+            
+            // Add 2 random incorrect choices
+            const otherCharacters = conclaveCharacters.filter(char => 
+                char.name !== currentCharacter.name
+            );
+            
+            while (choices.length < 3) {
+                const randomChar = otherCharacters[Math.floor(Math.random() * otherCharacters.length)];
+                if (!choices.includes(randomChar.name)) {
+                    choices.push(randomChar.name);
+                }
+            }
+
+            // Shuffle choices
+            for (let i = choices.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [choices[i], choices[j]] = [choices[j], choices[i]];
+            }
+
+            // Create choice buttons
+            const choicesContainer = document.getElementById('choices');
+            choicesContainer.innerHTML = '';
+            
+            choices.forEach(choice => {
+                const button = document.createElement('button');
+                button.className = 'choice-btn';
+                button.textContent = choice;
+                button.onclick = () => selectChoice(choice, button);
+                choicesContainer.appendChild(button);
+            });
+        }
+
+        function selectChoice(selectedName, buttonElement) {
+            if (!gameActive) return;
+
+            const allButtons = document.querySelectorAll('.choice-btn');
+            allButtons.forEach(btn => btn.disabled = true);
+
+            const feedback = document.getElementById('feedback');
+            
+            if (selectedName === currentCharacter.name) {
+                // Correct answer
+                buttonElement.classList.add('correct');
+                feedback.textContent = 'Correct! Well done!';
+                feedback.className = 'feedback correct';
+                score++;
+                updateScore();
+            } else {
+                // Incorrect answer
+                buttonElement.classList.add('incorrect');
+                feedback.textContent = `Incorrect! That was ${currentCharacter.name}`;
+                feedback.className = 'feedback incorrect';
+                
+                // Highlight the correct answer
+                allButtons.forEach(btn => {
+                    if (btn.textContent === currentCharacter.name) {
+                        btn.classList.add('correct');
+                    }
+                });
+            }
+
+            // Add current character to used list
+            usedCharacters.push(currentCharacter.name);
+
+            // Show next button
+            document.getElementById('nextBtn').style.display = 'inline-block';
+        }
+
+        function nextQuestion() {
+            loadNextCharacter();
+        }
+
+        function updateScore() {
+            document.getElementById('scoreValue').textContent = score;
+        }
+
+        function showGameOver() {
+            const gameScreen = document.getElementById('gameScreen');
+            gameScreen.innerHTML = `
+                <div class="game-over">
+                    <h2>Game Complete!</h2>
+                    <div class="final-score">Final Score: ${score} / ${conclaveCharacters.length}</div>
+                    <p>You've identified all the Conclave characters!</p>
+                    <button class="start-btn" onclick="location.reload()" style="margin-top: 20px;">
+                        Play Again
+                    </button>
+                </div>
+            `;
+            gameActive = false;
+        }
+    </script>
+</body>
+</html>
