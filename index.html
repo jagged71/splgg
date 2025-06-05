@@ -388,10 +388,9 @@
             currentCharacter = availableCharacters[randomIndex];
 
             // Display character image (placeholder for now)
-            const imageElement = document.getElementById('characterImage');
-            imageElement.textContent = currentCharacter.name;
-            imageElement.style.fontSize = '0.9em';
-            imagelement.style.lineHeight = '1.2';
+            // Display character image
+			const imageElement = document.getElementById('characterImage');
+			imageElement.innerHTML = `<img src="${currentCharacter.image}" alt="${currentCharacter.name}" class="character-image" onerror="this.style.display='none'; this.parentElement.textContent='${currentCharacter.name}';">`;
 
             // Generate choices
             generateChoices();
