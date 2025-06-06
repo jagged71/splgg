@@ -85,6 +85,12 @@
             font-weight: bold;
         }
 
+        .difficulty {
+            font-size: 1.2em;
+            color: #f56565;
+            font-weight: bold;
+        }
+
         .character-display {
             margin-bottom: 30px;
         }
@@ -98,6 +104,10 @@
             display: block;
             object-fit: cover;
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .character-image.silhouette {
+            filter: brightness(0) saturate(100%);
         }
 
         .placeholder-image {
@@ -342,6 +352,7 @@
                 <div class="score">Score: <span id="scoreValue">0</span></div>
                 <div class="timer">Time: <span id="timerValue">5</span>s</div>
                 <div class="progress">Progress: <span id="progressValue">0/80</span></div>
+                <div class="difficulty">Mode: <span id="difficultyValue">NORMAL</span></div>
             </div>
         </div>
 
@@ -354,8 +365,10 @@
                 • 3 multiple choice options<br>
                 • Try to get through all 80 characters!
             </p>
-            <button class="start-btn" onclick="startGame()">Start Game</button>
-            <br>
+            <div style="margin-bottom: 20px;">
+                <button class="start-btn" onclick="startGame(false)" style="margin-right: 10px;">Start Normal Mode</button>
+                <button class="start-btn" onclick="startGame(true)" style="background: linear-gradient(135deg, #f56565, #e53e3e);">Start HARD Mode (Silhouettes)</button>
+            </div>
             <a href="https://splinterlands.com/register?ref=jagged71" target="_blank" class="referral-link">
                 🎮 Join Splinterlands with my referral! 🎮
             </a>
@@ -481,6 +494,7 @@
         let timer = null;
         let totalQuestions = 0;
         let correctAnswers = 0;
+        let hardMode = false;
 
         // Create audio elements for sound effects
         const correctSound = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3');
@@ -495,7 +509,7 @@
             }
         }
 
-        function startGame() {
+        function startGame(isHardMode = false) {
             document.getElementById('startScreen').style.display = 'none';
             document.getElementById('gameScreen').style.display = 'block';
             score = 0;
@@ -503,8 +517,10 @@
             usedCharacters = [];
             totalQuestions = 0;
             gameActive = true;
+            hardMode = isHardMode;
             updateScore();
             updateProgress();
+            updateDifficulty();
             loadNextCharacter();
         }
 
@@ -580,10 +596,17 @@
             const randomIndex = Math.floor(Math.random() * availableCharacters.length);
             currentCharacter = availableCharacters[randomIndex];
 
-            // Display character image (placeholder for now)
+            // Display character image
             const imageElement = document.getElementById('characterImage');
-			imageElement.src = currentCharacter.image;
-			imageElement.alt = currentCharacter.name;
+            imageElement.src = currentCharacter.image;
+            imageElement.alt = currentCharacter.name;
+
+            // Apply silhouette effect in hard mode
+            if (hardMode) {
+                imageElement.classList.add('silhouette');
+            } else {
+                imageElement.classList.remove('silhouette');
+            }
 
             imageElement.style.fontSize = '0.9em';
             imageElement.style.lineHeight = '1.2';
@@ -685,6 +708,10 @@
 
         function updateProgress() {
             document.getElementById('progressValue').textContent = `${usedCharacters.length}/${conclaveCharacters.length}`;
+        }
+
+        function updateDifficulty() {
+            document.getElementById('difficultyValue').textContent = hardMode ? 'HARD (Silhouettes)' : 'NORMAL';
         }
 
         function showGameOver() {
