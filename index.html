@@ -35,20 +35,6 @@
             margin-bottom: 30px;
         }
 
-        .logos {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-
-        .logo {
-            height: 60px;
-            width: auto;
-            object-fit: contain;
-        }
-
         .title {
             color: #4a5568;
             font-size: 2.5em;
@@ -57,32 +43,11 @@
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
         }
 
-        .game-stats {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
         .score {
-            font-size: 1.2em;
+            font-size: 1.5em;
             color: #667eea;
             font-weight: bold;
-        }
-
-        .timer {
-            font-size: 1.2em;
-            color: #667eea;
-            font-weight: bold;
-            transition: all 0.3s ease;
-        }
-
-        .progress {
-            font-size: 1.2em;
-            color: #48bb78;
-            font-weight: bold;
+            margin-bottom: 20px;
         }
 
         .character-display {
@@ -217,27 +182,6 @@
             box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
         }
 
-        .referral-link {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            color: white;
-            text-decoration: none;
-            padding: 12px 25px;
-            border-radius: 10px;
-            font-size: 1em;
-            font-weight: 600;
-            display: inline-block;
-            margin: 15px 0;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(240, 147, 251, 0.3);
-        }
-
-        .referral-link:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(240, 147, 251, 0.4);
-            text-decoration: none;
-            color: white;
-        }
-
         @keyframes pulse {
             0% { transform: scale(1); }
             50% { transform: scale(1.05); }
@@ -268,30 +212,6 @@
             margin-bottom: 20px;
         }
 
-        .stats-container {
-            display: flex;
-            justify-content: space-around;
-            margin-bottom: 20px;
-        }
-
-        .stat-box {
-            background: rgba(255, 255, 255, 0.2);
-            padding: 15px;
-            border-radius: 10px;
-            min-width: 100px;
-        }
-
-        .stat-value {
-            font-size: 1.8em;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-
-        .stat-label {
-            font-size: 0.9em;
-            opacity: 0.9;
-        }
-
         @media (max-width: 600px) {
             .game-container {
                 padding: 20px;
@@ -305,60 +225,22 @@
                 width: 150px;
                 height: 150px;
             }
-
-            .logos {
-                gap: 15px;
-            }
-
-            .logo {
-                height: 40px;
-            }
-
-            .game-stats {
-                flex-direction: column;
-                gap: 5px;
-            }
-
-            .game-stats > div {
-                font-size: 1em;
-            }
-
-            .stats-container {
-                flex-direction: column;
-                gap: 10px;
-            }
         }
     </style>
 </head>
 <body>
     <div class="game-container">
         <div class="header">
-            <div class="logos">
-                <img src="Biteylogo.png" alt="Bitey Logo" class="logo">
-                <img src="conclavelogo.png" alt="Conclave Logo" class="logo">
-            </div>
             <h1 class="title">Conclave Characters</h1>
-            <div class="game-stats">
-                <div class="score">Score: <span id="scoreValue">0</span></div>
-                <div class="timer">Time: <span id="timerValue">30</span>s</div>
-                <div class="progress">Progress: <span id="progressValue">0/80</span></div>
-            </div>
+            <div class="score">Score: <span id="scoreValue">0</span></div>
         </div>
 
         <div id="startScreen">
             <p style="font-size: 1.2em; margin-bottom: 20px; color: #4a5568;">
                 Test your knowledge of Conclave characters!<br>
-                Can you identify each character by their image?<br><br>
-                <strong>Game Rules:</strong><br>
-                • 30 seconds per question<br>
-                • 3 multiple choice options<br>
-                • Try to get through all 80 characters!
+                Can you identify each character by their image?
             </p>
             <button class="start-btn" onclick="startGame()">Start Game</button>
-            <br>
-            <a href="https://splinterlands.com/register?ref=jagged71" target="_blank" class="referral-link">
-                🎮 Join Splinterlands with my referral! 🎮
-            </a>
         </div>
 
         <div id="gameScreen" style="display: none;">
@@ -478,91 +360,18 @@
         let score = 0;
         let usedCharacters = [];
         let gameActive = false;
-        let timeLeft = 30;
-        let timer = null;
-        let totalQuestions = 0;
-        let correctAnswers = 0;
-
-        // Create audio elements for sound effects
-        const correctSound = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3');
-        const incorrectSound = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-fail-notification-946.mp3');
-
-        function playSound(sound) {
-            try {
-                sound.currentTime = 0;
-                sound.play().catch(e => console.log('Sound play failed:', e));
-            } catch (e) {
-                console.log('Sound creation failed:', e);
-            }
-        }
 
         function startGame() {
             document.getElementById('startScreen').style.display = 'none';
             document.getElementById('gameScreen').style.display = 'block';
             score = 0;
-            correctAnswers = 0;
             usedCharacters = [];
-            totalQuestions = 0;
             gameActive = true;
             updateScore();
-            updateProgress();
             loadNextCharacter();
         }
 
-        function startTimer() {
-            timeLeft = 30;
-            updateTimer();
-            timer = setInterval(() => {
-                timeLeft--;
-                updateTimer();
-                
-                if (timeLeft <= 0) {
-                    clearInterval(timer);
-                    handleTimeUp();
-                }
-            }, 1000);
-        }
-
-        function updateTimer() {
-            document.getElementById('timerValue').textContent = timeLeft;
-            const timerElement = document.querySelector('.timer');
-            if (timeLeft <= 10) {
-                timerElement.style.color = '#e53e3e';
-                if (timeLeft <= 5) {
-                    timerElement.style.animation = 'pulse 1s infinite';
-                }
-            } else {
-                timerElement.style.color = '#667eea';
-                timerElement.style.animation = 'none';
-            }
-        }
-
-        function handleTimeUp() {
-            if (!gameActive) return;
-            
-            const allButtons = document.querySelectorAll('.choice-btn');
-            allButtons.forEach(btn => {
-                btn.disabled = true;
-                if (btn.textContent === currentCharacter.name) {
-                    btn.classList.add('correct');
-                }
-            });
-
-            const feedback = document.getElementById('feedback');
-            feedback.textContent = `Time's up! That was ${currentCharacter.name}`;
-            feedback.className = 'feedback incorrect';
-            
-            playSound(incorrectSound);
-            usedCharacters.push(currentCharacter.name);
-            document.getElementById('nextBtn').style.display = 'inline-block';
-        }
-
         function loadNextCharacter() {
-            // Clear any existing timer
-            if (timer) {
-                clearInterval(timer);
-            }
-
             // Get available characters (not yet used)
             const availableCharacters = conclaveCharacters.filter(char => 
                 !usedCharacters.includes(char.name)
@@ -574,18 +383,14 @@
                 return;
             }
 
-            totalQuestions++;
-            updateProgress();
-
             // Select random character
             const randomIndex = Math.floor(Math.random() * availableCharacters.length);
             currentCharacter = availableCharacters[randomIndex];
 
             // Display character image (placeholder for now)
-            const imageElement = document.getElementById('characterImage');
-            imageElement.textContent = currentCharacter.name;
-            imageElement.style.fontSize = '0.9em';
-            imageElement.style.lineHeight = '1.2';
+            // Display character image
+			const imageElement = document.getElementById('characterImage');
+			imageElement.innerHTML = `<img src="${currentCharacter.image}" alt="${currentCharacter.name}" class="character-image" onerror="this.style.display='none'; this.parentElement.textContent='${currentCharacter.name}';">`;
 
             // Generate choices
             generateChoices();
@@ -594,9 +399,6 @@
             document.getElementById('feedback').textContent = '';
             document.getElementById('feedback').className = 'feedback';
             document.getElementById('nextBtn').style.display = 'none';
-
-            // Start timer
-            startTimer();
         }
 
         function generateChoices() {
@@ -636,7 +438,6 @@
         function selectChoice(selectedName, buttonElement) {
             if (!gameActive) return;
 
-            clearInterval(timer);
             const allButtons = document.querySelectorAll('.choice-btn');
             allButtons.forEach(btn => btn.disabled = true);
 
@@ -648,15 +449,12 @@
                 feedback.textContent = 'Correct! Well done!';
                 feedback.className = 'feedback correct';
                 score++;
-                correctAnswers++;
-                playSound(correctSound);
                 updateScore();
             } else {
                 // Incorrect answer
                 buttonElement.classList.add('incorrect');
                 feedback.textContent = `Incorrect! That was ${currentCharacter.name}`;
                 feedback.className = 'feedback incorrect';
-                playSound(incorrectSound);
                 
                 // Highlight the correct answer
                 allButtons.forEach(btn => {
@@ -668,7 +466,6 @@
 
             // Add current character to used list
             usedCharacters.push(currentCharacter.name);
-            updateProgress();
 
             // Show next button
             document.getElementById('nextBtn').style.display = 'inline-block';
@@ -682,35 +479,13 @@
             document.getElementById('scoreValue').textContent = score;
         }
 
-        function updateProgress() {
-            document.getElementById('progressValue').textContent = `${usedCharacters.length}/${conclaveCharacters.length}`;
-        }
-
         function showGameOver() {
             const gameScreen = document.getElementById('gameScreen');
-            const accuracy = totalQuestions > 0 ? Math.round((correctAnswers / totalQuestions) * 100) : 0;
-            
             gameScreen.innerHTML = `
                 <div class="game-over">
                     <h2>Game Complete!</h2>
-                    <div class="final-score">Final Score: ${score}</div>
-                    
-                    <div class="stats-container">
-                        <div class="stat-box">
-                            <div class="stat-value">${totalQuestions}</div>
-                            <div class="stat-label">Questions</div>
-                        </div>
-                        <div class="stat-box">
-                            <div class="stat-value">${correctAnswers}</div>
-                            <div class="stat-label">Correct</div>
-                        </div>
-                        <div class="stat-box">
-                            <div class="stat-value">${accuracy}%</div>
-                            <div class="stat-label">Accuracy</div>
-                        </div>
-                    </div>
-                    
-                    <p>You've identified all ${conclaveCharacters.length} Conclave characters!</p>
+                    <div class="final-score">Final Score: ${score} / ${conclaveCharacters.length}</div>
+                    <p>You've identified all the Conclave characters!</p>
                     <button class="start-btn" onclick="location.reload()" style="margin-top: 20px;">
                         Play Again
                     </button>
